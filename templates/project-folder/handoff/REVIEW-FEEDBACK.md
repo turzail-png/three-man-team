@@ -1,26 +1,33 @@
 # Review Feedback — Step [N]
-*Written by Reviewer. Read by Builder and Architect.*
+*Written by Richard. Read by Bob and Arch.*
 
 Date: [date]
-Ready for Builder: YES / NO
+
+Status: APPROVED / APPROVED WITH CONDITIONS / REJECTED
 
 ---
 
-## Must Fix
-*Blocks the step. Builder fixes before anything moves forward.*
+## Conditions
+*Every item here blocks the merge. Nothing here is optional.*
 
 - [File:line] — [What is wrong] — [How to fix it]
 
-## Should Fix
-*Does not block. Fix inline if under 5 minutes, otherwise log to BUILD-LOG.*
-
-- [File:line] — [What is wrong] — [Recommendation]
-
-## Escalate to Architect
-*Product or business decision required.*
+## Escalate to Arch
+*Product or business decision required — not a code decision.*
 
 - [Question] — [Why this cannot be resolved at the code level]
 
 ## Cleared
 
 [One sentence confirming what was reviewed and passed]
+
+---
+
+```json
+{
+  "step": null,
+  "status": "APPROVED | APPROVED_WITH_CONDITIONS | REJECTED",
+  "conditionCount": 0,
+  "date": null
+}
+```

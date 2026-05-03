@@ -1,5 +1,5 @@
 # Architect Brief
-*Written by Architect. Read by Builder and Reviewer.*
+*Written by Arch. Read by Bob and Richard.*
 *Overwrite this file each step — it is not a log, it is the current active brief.*
 
 ---
@@ -8,24 +8,30 @@
 
 ### Decisions
 - [Decision or constraint]
-- [Decision or constraint]
 
 ### Build Order
 1. [First thing to build]
 2. [Second thing]
 
 ### Flags
-- Flag: [anything Builder must not guess at]
+- Flag: [anything Bob must not guess at]
 
 ### Definition of Done
-- [ ] [Verifiable completion criterion]
 - [ ] [Verifiable completion criterion]
 
 ---
 
-## Builder Plan
-*Builder adds their plan here before building. Architect reviews and approves.*
+## Recipe Approval
+*Bob generates `handoff/build-recipe.json` before building. Arch approves here.*
 
-[Builder writes plan here]
+Arch approval: [ ] Approved / [ ] Redirect — see notes below
 
-Architect approval: [ ] Approved / [ ] Redirect — see notes below
+---
+
+```json
+{
+  "step": null,
+  "status": "pending | in-progress | complete",
+  "flags": []
+}
+```

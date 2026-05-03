@@ -12,7 +12,7 @@ Start by loading the token-optimizer skill if available (`@.claude/skills/token-
 
 **Important for the Project Owner:** Three Man Team runs in **one Claude Code session**. You don't open three windows. Arch is your main agent. When work is ready to build, Arch spins up Bob as a subagent via Claude Code's Agent tool. When Bob is done, Arch spins up Richard the same way. All three roles happen inside your single session.
 
-Then introduce yourself and ask the three setup questions in a single message — exactly like this:
+Then introduce yourself and ask the setup questions in a single message — exactly like this:
 
 ---
 
@@ -30,7 +30,10 @@ Then introduce yourself and ask the three setup questions in a single message �
 > We recommend installing RTK. Here's why: every time your AI runs a bash command — `find`, `ls`, `grep` — the output gets dumped into context whether you need it or not. RTK compresses that output before it hits Claude, cutting token usage by 60–90% on those commands. It works silently in the background and pairs directly with Three Man Team's built-in token rules. Want to install it?
 >
 > **4. Agent models (optional)**
-> By default, Bob and Richard run on whatever model is active when I spin them up. If you want different models per agent — say, Opus for me, Sonnet for Bob, Haiku for Richard — tell me now and I'll note it in my briefing templates.
+> By default, Bob and Richard run on whatever model is active when I spin them up. If you want different models per agent — say, Opus for me, Sonnet for Bob, Haiku for Richard — tell me now and I'll note it in `team-config.json`.
+>
+> **5. Project standards**
+> What are your coding standards and tooling requirements? For example: linting tool and config, test runner and minimum coverage, static analysis level, anything that must never appear in the codebase. I'll write these to `project-standards.json` so Bob and Richard enforce them automatically on every step.
 >
 > I'll take care of all of this before we do anything else. Go ahead.
 
@@ -75,12 +78,11 @@ Then introduce yourself and ask the three setup questions in a single message �
 ---
 
 **If they want specific models per agent:**
-- Note the desired model for each agent as a comment in ARCHITECT.md's briefing sections — just above the spin-up prompt for Builder and Reviewer.
-- When spinning up agents via the Agent tool, pass the `model` parameter. Available IDs: `claude-opus-4-7` (most capable), `claude-sonnet-4-6` (balanced), `claude-haiku-4-5-20251001` (fastest).
+- Update `team-config.json` — set `model` for each agent. Available IDs: `claude-opus-4-7` (most capable), `claude-sonnet-4-6` (balanced), `claude-haiku-4-5-20251001` (fastest).
 - For manual paste: switch to the desired model before pasting the agent prompt.
 
 **If they don't care about model assignment:**
-- Keep going. All agents default to the current session model.
+- Keep going. All agents default to the current session model. `team-config.json` model fields stay null.
 
 ---
 
@@ -100,13 +102,48 @@ If they want RTK — give them the install command and explain both options:
 >
 > `rtk gain` shows your token savings over time. You're done — RTK runs silently from here.
 
-Wait for them to confirm it's installed before moving on.
+Wait for them to confirm it's installed before moving on. Then set `"rtk": true` in `team-config.json`.
 
 If they don't want RTK — keep going. They can install it any time.
 
 ---
 
+**Project standards:**
+
+Fill in `project-standards.json` from their answer. Examples:
+
+WordPress:
+```json
+{
+  "stack": "WordPress",
+  "linting": { "tool": "lefthook", "config": ".lefthook.yml", "run": "lefthook run pre-commit" },
+  "tests": { "required": true, "tool": "phpunit", "command": "phpunit", "min-coverage": 80 },
+  "forbidden": ["var_dump", "error_log", "die("]
+}
+```
+
+Python:
+```json
+{
+  "stack": "Python",
+  "linting": { "tool": "ruff", "config": "pyproject.toml", "run": "ruff check ." },
+  "tests": { "required": true, "tool": "pytest", "command": "pytest", "min-coverage": 90 },
+  "forbidden": ["print(", "breakpoint("]
+}
+```
+
+If they have no standards yet — leave `project-standards.json` as-is with null values. They can fill it in when they know what they need.
+
+---
+
 ## When Setup Is Complete
+
+Update `team-config.json` with everything confirmed:
+- Team names (if renamed)
+- Model assignments (if specified)
+- `"rtk": true` (if installed)
+- `"project.name"` and `"project.stack"` from the project context discussion
+- `"project.context_file"` if different from `CLAUDE.md`
 
 Tell the user:
 

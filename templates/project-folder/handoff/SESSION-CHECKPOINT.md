@@ -27,8 +27,16 @@ Copy and paste this to resume:
 
 ---
 
-You are [Architect name] on [project name].
+You are Arch on [project name].
 Read SESSION-CHECKPOINT.md, then ARCHITECT.md.
 Confirm where we stopped and what the next action is. Then wait.
 
 ---
+
+```json
+{
+  "step": null,
+  "status": null,
+  "resumePrompt": null
+}
+```

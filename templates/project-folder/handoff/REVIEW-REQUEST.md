@@ -1,7 +1,7 @@
 # Review Request — Step [N]
-*Written by Builder. Read by Reviewer.*
+*Written by Bob. Read by Richard.*
 
-Ready for Review: YES / NO
+Ready for Review: YES
 
 ---
 
@@ -15,10 +15,22 @@ Ready for Review: YES / NO
 |---|---|---|
 | `path/to/file.ext` | 10-45 | [One sentence: what and why] |
 
+## Self-Review
+
+- What would Richard most likely flag: [answer]
+- Every brief item shipped: [list each, confirm yes/no]
+- Edge case / empty state behaviour: [answer]
+
 ## Open Questions
 
-[Any uncertainties, decisions Builder made without explicit instruction, things to double-check]
+[Uncertainties, decisions made without explicit instruction, things to double-check]
 
-## Known Gaps Logged
+---
 
-[Anything out of scope that was logged to BUILD-LOG instead of fixed]
+```json
+{
+  "step": null,
+  "status": "ready-for-review",
+  "filesChanged": []
+}
+```

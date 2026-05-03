@@ -1,0 +1,31 @@
+{
+  "version": "1.3.0",
+  "install": "per-project",
+  "team": {
+    "architect": { "name": "Arch", "model": null },
+    "builder":   { "name": "Bob",  "model": null },
+    "reviewer":  { "name": "Richard", "model": null }
+  },
+  "project": {
+    "name": null,
+    "stack": null,
+    "context_file": "CLAUDE.md"
+  },
+  "rtk": false,
+  "sessionStart": {
+    "architect": ["readTeamConfig", "checkVersion", "loadTokenOptimizer", "readKnownGaps", "readCheckpoint", "fallback_readBuildLog", "fallback_readBrief", "readSprintPlan", "reportStatus"],
+    "builder":   ["readTeamConfig", "loadTokenOptimizer", "readBrief", "readProjectStandards", "checkIfResumingAfterReview"],
+    "reviewer":  ["readTeamConfig", "loadTokenOptimizer", "runGitDiff", "readReviewRequest", "readRecipe", "readProjectStandards", "readOnlyListedFiles"]
+  },
+  "files": {
+    "brief":      "handoff/ARCHITECT-BRIEF.md",
+    "buildLog":   "handoff/BUILD-LOG.md",
+    "recipe":     "handoff/build-recipe.json",
+    "sprintPlan": "handoff/sprint-plan.json",
+    "knownGaps":  "handoff/known-gaps.json",
+    "reviewReq":  "handoff/REVIEW-REQUEST.md",
+    "reviewFb":   "handoff/REVIEW-FEEDBACK.md",
+    "checkpoint": "handoff/SESSION-CHECKPOINT.md",
+    "standards":  "project-standards.json"
+  }
+}

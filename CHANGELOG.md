@@ -1,5 +1,40 @@
 # Changelog
 
+## v1.3.0 — 2026-05-03
+
+### The JSON Layer
+
+- `team-config.json` — single source of truth for team names, models, install type, version, file paths, and session startup protocol. All agents read from it. Replaces scattered prose references and the separate VERSION file.
+- `project-standards.json` — user-defined coding standards, linting, test requirements, and forbidden patterns. Bob reads it before every recipe. Richard reviews against it.
+- `handoff/build-recipe.json` — Bob generates this before touching any files. Arch approves it. Richard uses it as source of truth during review.
+- `handoff/sprint-plan.json` — Arch maps the full sprint upfront. All steps, status, current step. Bob and Richard see where each step fits.
+- `handoff/known-gaps.json` — structured gap tracking with lifecycle (open/in-progress/addressed). Replaces KG-N prose in BUILD-LOG. Arch reviews at every session start.
+- `handoff-schema.json` — authoritative schema for every handoff file. Single source of truth for what each file requires, who owns it, who reads it.
+
+### Version check now JSON-to-JSON
+Arch reads `version` from `team-config.json`, fetches GitHub releases API (returns JSON), compares `tag_name`. No separate VERSION file — removed.
+
+### Review status upgraded
+`Must Fix / Should Fix / Ready for Builder` replaced with `APPROVED / APPROVED WITH CONDITIONS / REJECTED`. There is no "Should Fix." If it needs fixing it is a Condition. Updated in both templates and all handoff files.
+
+### Bob's workflow: recipe before code
+Bob generates `handoff/build-recipe.json` before writing any file. Arch approves the recipe. Bob adds linting gate and self-review before handing to Richard.
+
+### Generic template brought to parity with project-folder
+- Version check added to `templates/generic/ARCHITECT.md`
+- Model selection added as question 4 in `templates/generic/new-setup.md`
+- `@.claude/skills/token-optimization.md` import added to CLAUDE.md creation
+- `.claude/skills/token-optimization.md` now ships with generic template
+
+### Project standards as onboarding question
+Question 5 added to both `new-setup.md` templates. Arch writes `project-standards.json` from the answer during first session.
+
+### Structured JSON blocks in handoff files
+All handoff `.md` files now include a machine-readable JSON block at the bottom. Human prose stays. Agents can parse status, step number, and file lists without scanning prose.
+
+### Setup script updated
+`team-config.json` and `project-standards.json` now ship in both templates. `cp -r templates/project-folder/. /project/` copies all JSON config files on install.
+
 ## v1.2.3 — 2026-05-03
 
 - Auto-update check: Arch now checks the GitHub releases API at session start and notifies the Project Owner if a newer version is available

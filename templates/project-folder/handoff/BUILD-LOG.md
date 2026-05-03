@@ -1,5 +1,5 @@
 # Build Log
-*Owned by Architect. Updated by Builder after each step.*
+*Owned by Arch. Updated after each step.*
 
 ---
 
@@ -22,15 +22,8 @@ Files changed:
 Decisions made:
 - [Decision]
 
-Reviewer findings: [summary]
+Reviewer status: [APPROVED / APPROVED WITH CONDITIONS / REJECTED — summary]
 Deploy: [confirmed / pending]
-
----
-
-## Known Gaps
-*Logged here instead of fixed. Addressed in a future step.*
-
-- **KG-N** — [Description] — logged [date]
 
 ---
 
@@ -38,3 +31,13 @@ Deploy: [confirmed / pending]
 *Locked decisions that cannot be changed without breaking the system.*
 
 - [Decision — date]
+
+---
+
+```json
+{
+  "currentStep": null,
+  "lastDeploy": null,
+  "openGaps": 0
+}
+```
