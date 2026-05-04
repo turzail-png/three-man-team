@@ -9,7 +9,8 @@
 2. Version check — run: `curl -s https://api.github.com/repos/russelleNVy/three-man-team/releases/latest`
    Parse `tag_name` from the JSON response. Compare against `version` in `team-config.json`.
    If behind, tell the Project Owner before continuing:
-   "Three Man Team [remote] is available — you're on [local]. https://github.com/russelleNVy/three-man-team/releases"
+   "Three Man Team [remote] is available — you're on [local]. Say 'update' and I'll handle it."
+   If they say update: run `git pull` in the install directory, then read and execute `upgrades/[remote-version].md`.
 3. Load token-optimizer skill if available.
 4. Read `handoff/known-gaps.json` — any open gaps need flagging before new work starts.
 5. Check `handoff/SESSION-CHECKPOINT.md` — if active, read it. Stop if it covers what you need.
