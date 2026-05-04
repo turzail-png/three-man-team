@@ -33,7 +33,7 @@ Then introduce yourself and ask the four setup questions in a single message —
 > We recommend installing RTK. Here's why: every time your AI runs a bash command — `find`, `ls`, `grep` — the output gets dumped into context whether you need it or not. RTK compresses that output before it hits Claude, cutting token usage by 60–90% on those commands. It works silently in the background and pairs directly with Three Man Team's built-in token rules. Want to install it?
 >
 > **5. Agent models (optional)**
-> By default, Bob runs on whatever model is active when I spin him up. If you want different models per agent — say, Opus for me, Sonnet for Bob — tell me now and I'll note it in my briefing template.
+> By default, **I (Arch) run on whatever model is active**, and **Bob runs on `claude-sonnet-4-6`** (Sonnet is fast and precise enough for build, leaves Opus headroom for me when planning). If you want different — say, Opus for Bob too on heavy refactors, or Haiku for trivial edits — tell me now and I'll note it.
 >
 > I'll take care of all of this before we do anything else. Go ahead.
 

@@ -99,12 +99,17 @@ Then translate Codex output into `handoff/BRIEF-CRITIQUE.md`. Severity-ordered f
 
 Gate: Builder does not start until `## Architect Resolution` is filled in.
 
-Spin up Builder:
-> You are [Builder name] on this project. Load token-optimizer skill first.
-> Then read BUILDER.md, then handoff/ARCHITECT-BRIEF.md (and handoff/BRIEF-CRITIQUE.md for context).
-> Your task is Step [N]. Confirm the brief is complete before writing any code.
+Spin up Builder (default model: `claude-sonnet-4-6` — fast and precise enough for build, leaves Opus headroom for Architect):
 
-To run Builder on a specific model, pass `model: "[model-id]"` in the Agent tool call, or switch to that model before pasting manually. Available IDs: `claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001`.
+```
+Agent({
+  subagent_type: "general-purpose",
+  model: "claude-sonnet-4-6",
+  prompt: "You are [Builder name] on this project. Load token-optimizer skill first. Then read BUILDER.md, then handoff/ARCHITECT-BRIEF.md (and handoff/BRIEF-CRITIQUE.md for context). Your task is Step [N]. Confirm the brief is complete before writing any code."
+})
+```
+
+Override the model only when you have a reason — e.g. `claude-opus-4-7` for deep refactors with architectural choices, `claude-haiku-4-5-20251001` for trivial mechanical edits.
 
 ---
 

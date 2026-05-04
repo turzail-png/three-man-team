@@ -27,6 +27,10 @@ upstream Russell.
 - New handoff: `handoff/BRIEF-CRITIQUE.md` template.
 - Setup script + new-setup.md updated: only ask about Arch and Bob (no Richard); ask about
   the codex plugin instead.
+- **Default Builder model: `claude-sonnet-4-6`**. Bob runs on Sonnet 4.6 by default — fast
+  and precise enough for build, leaves Opus headroom for Arch when planning. Override per
+  sprint when a heavy refactor needs Opus or a mechanical edit can use Haiku. ARCHITECT.md
+  spin-up block uses an explicit `Agent({ model: "claude-sonnet-4-6", ... })` form.
 - **No fallback** if Codex is down: sprint blocks at the review gate. The whole point of
   the gate is the independent second opinion.
 - Prerequisite: install the codex Claude Code plugin and run `/codex:setup` once per session.
