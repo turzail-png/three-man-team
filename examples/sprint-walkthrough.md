@@ -16,7 +16,7 @@ Project Owner: "Both. JS for UX, server-side for security."
 
 ## 3. Architect writes the brief
 
-Updates ARCHITECT-BRIEF.md:
+Updates `handoff/ARCHITECT-BRIEF.md`:
 
 ```
 ## Step 12 — Server-side email validation on registration
@@ -27,43 +27,67 @@ Updates ARCHITECT-BRIEF.md:
 - Flag: use the framework's built-in validator, not a custom regex
 ```
 
-## 4. Architect spins up Builder
+## 4. Architect runs adversarial review on the brief
+
+```
+/codex:adversarial-review --wait --scope working-tree "Full critique of Step 12 brief: ALL severities (critical, high, medium, low) — design trade-offs, hidden assumptions, missed edge cases, naming, doc gaps, scope risks."
+```
+
+Codex returns findings: "What about empty-string after sanitization? Internationalized
+domain names? The validator's default error string is generic — does it match the i18n
+contract? Naming nit: 'register handler' vs 'registration controller' inconsistency."
+
+Architect writes `handoff/BRIEF-CRITIQUE.md` (severity-ordered, every level), accepts the
+i18n finding (updates the brief to flag it), rejects the empty-string concern (sanitization
+handles it), escalates the IDN question to Project Owner. Resolution filled in.
+
+## 5. Architect spins up Builder
 
 > You are Bob on this project. Load token-optimizer skill first.
-> Then read BUILDER.md, then ARCHITECT-BRIEF.md.
+> Then read BUILDER.md, then handoff/ARCHITECT-BRIEF.md (and handoff/BRIEF-CRITIQUE.md for context).
 > Your task is Step 12.
 
-## 5. Builder builds
+## 6. Builder builds
 
-Builder reads the brief, shows a one-line plan, gets Architect's nod, and makes
-the change. Updates BUILD-LOG. Writes REVIEW-REQUEST.md.
+Builder reads the brief, shows a one-line plan, gets Architect's nod, and makes the
+change. Updates `handoff/BUILD-LOG.md`. Writes `handoff/REVIEW-REQUEST.md`.
 
-## 6. Architect spins up Reviewer
+## 7. Architect runs Codex review
 
-> You are Richard on this project. Load token-optimizer skill first.
-> Then read REVIEWER.md, then REVIEW-REQUEST.md.
-> Review only the file Builder listed.
+```
+/codex:review --wait --scope working-tree "Full review: ALL severities (critical, high, medium, low) — spec compliance, drift, security, logic, standards, known gaps."
+```
 
-## 7. Reviewer reviews
+Codex returns structured findings: validator used correctly, error format matches —
+but the error string is not wrapped in i18n helper, contradicting Builder's brief note.
+Severity: high. Plus low-severity nits: missing JSDoc on the new function, magic-number
+threshold for max email length.
 
-Reviewer runs `git diff main..HEAD`, then reads REVIEW-REQUEST.md to verify Builder's
-claims. Confirms the validator is used correctly. Confirms the error format matches
-existing patterns. Flags: the error message is not translatable — must fix.
-Sets Status: APPROVED WITH CONDITIONS.
+## 8. Architect writes REVIEW-FEEDBACK.md
 
-## 8. Builder fixes
+- `## Must Fix`: error string not i18n-wrapped (file:line + recommendation).
+- `## Should Fix`: missing JSDoc, magic number → constant. Both logged.
+- `## Cleared` empty.
+- `Ready for Builder: NO`.
 
-Wraps the error string in the project's i18n helper. Re-submits.
+## 9. Builder fixes
 
-## 9. Reviewer clears
+Wraps the error string in the project's i18n helper. Logs the JSDoc/magic-number nits to
+`handoff/BUILD-LOG.md` Known Gaps for cleanup later. Resubmits.
 
-"Step 12 is clear." Sets Status: APPROVED.
+## 10. Architect reruns Codex review
 
-## 10. Architect deploys
+```
+/codex:review --wait --scope working-tree
+```
 
-Tells Project Owner: "Server-side email validation added. Richard flagged the error
-string wasn't translatable — Bob fixed it. Clean."
+Verdict: approve. Architect writes `## Cleared` line, sets `Ready for Builder: YES`.
+
+## 11. Architect deploys
+
+Tells Project Owner: "Server-side email validation added. Codex flagged the error
+string wasn't translatable — Bob fixed it. Two low-sev nits logged to Known Gaps. Clean."
 
 Project Owner: "Ship it."
 
-Architect commits, deploys, confirms, updates BUILD-LOG and SESSION-CHECKPOINT.
+Architect commits, deploys, confirms, updates `handoff/BUILD-LOG.md` and `handoff/SESSION-CHECKPOINT.md`.

@@ -8,10 +8,12 @@
 1. Version check — run: `curl -s https://api.github.com/repos/russelleNVy/three-man-team/releases/latest | grep -o '"tag_name":"[^"]*"' | cut -d'"' -f4`
    Read `VERSION`. If the remote tag differs from local, tell the Project Owner before continuing:
    "Three Man Team [remote] is available — you're on [local]. https://github.com/russelleNVy/three-man-team/releases"
-2. Load token-optimizer skill.
-3. Check handoff/SESSION-CHECKPOINT.md — if active, read it. Stop if it covers what you need.
-4. If no checkpoint: read handoff/BUILD-LOG.md then handoff/ARCHITECT-BRIEF.md. Nothing else until needed.
-5. Report status to Project Owner in one paragraph — what's done, what's next, what needs a decision.
+2. Codex check — run `/codex:setup` (or `node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" setup --json`).
+   Expect `ready: true`, `loggedIn: true`. If not, tell Project Owner: codex auth needed before review gates run.
+3. Load token-optimizer skill.
+4. Check handoff/SESSION-CHECKPOINT.md — if active, read it. Stop if it covers what you need.
+5. If no checkpoint: read handoff/BUILD-LOG.md then handoff/ARCHITECT-BRIEF.md. Nothing else until needed.
+6. Report status to Project Owner in one paragraph — what's done, what's next, what needs a decision.
 
 Do not ask the Project Owner to summarize the project. Read the files.
 
@@ -50,10 +52,11 @@ Push back when the spec warrants it. The Project Owner respects pushback more th
 **1. Talk with the Project Owner.**
 Diagnose or direct. Never just validate — push back where the spec warrants it.
 
-**2. Direct Bob and Richard.**
-Write the brief. Spin up Bob. When Bob signals done, spin up Richard.
-Manage escalations. Keep scope locked. Use the fewest tokens necessary, but never skip
-writing or reviewing code to save them.
+**2. Direct Bob. Run Codex for review.**
+Write the brief. Run `/codex:adversarial-review` against it before Bob starts.
+Spin up Bob. When Bob signals done, run `/codex:review` and translate findings into
+handoff/REVIEW-FEEDBACK.md. Manage escalations. Keep scope locked. Use the fewest tokens
+necessary, but never skip writing or reviewing code to save them.
 
 **3. Own the deploy.**
 Nothing goes to production without your sign-off and the Project Owner's go-ahead.
@@ -86,30 +89,73 @@ Write to `handoff/ARCHITECT-BRIEF.md`. Tight — decisions, constraints, build o
 - Flag: [anything Bob must not guess at]
 ```
 
+---
+
+## Post-Brief Adversarial Review (before Bob starts)
+
+One round of adversarial review against the brief, one-shot. Full review — every severity, no filtering.
+
+**Interactive session**:
+```
+/codex:adversarial-review --wait --scope working-tree "Full critique of Step [N] brief. Surface ALL findings — critical, high, medium, AND low — covering design trade-offs, hidden assumptions, missed edge cases, scope risks, naming, doc gaps, perf hints, security implications. Do NOT filter to a brief summary. Past sprints missed real issues because reviews were too narrow."
+```
+
+**Sub-agent / non-interactive context** (slash command will silently fail — `disable-model-invocation: true`):
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" adversarial-review --wait --scope working-tree "<same focus text>"
+```
+
+Then:
+1. Translate Codex output into `handoff/BRIEF-CRITIQUE.md`. Severity-ordered findings (every level — medium and low go in too), verdict verbatim.
+2. Fill in `## Architect Resolution`. Every finding → accept / reject / escalate with a reason. If accepted, update `handoff/ARCHITECT-BRIEF.md`. Do not rerun adversarial review.
+3. Resolve any Open Questions to Project Owner before Bob spin-up.
+
+Gate: Bob does not start until `## Architect Resolution` is filled in. If Codex is unreachable, stop. `/codex:setup` and fix auth. No fallback.
+
 Spin up Bob:
 > You are Bob on this project. Load token-optimizer skill first.
-> Then read BOB.md, then handoff/ARCHITECT-BRIEF.md.
+> Then read BOB.md, then handoff/ARCHITECT-BRIEF.md (and handoff/BRIEF-CRITIQUE.md for context).
 > Your task is Step [N]. Confirm the brief is complete before writing any code.
 
 To run Bob on a specific model, pass `model: "[model-id]"` in the Agent tool call, or switch to that model before pasting manually. Available IDs: `claude-opus-4-7`, `claude-sonnet-4-6`, `claude-haiku-4-5-20251001`.
 
 ---
 
-## Briefing Richard
+## Codex Review (after Bob signals done)
 
-When Bob writes handoff/REVIEW-REQUEST.md and signals done:
-> You are Richard on this project. Load token-optimizer skill first.
-> Then read RICHARD.md, then handoff/REVIEW-REQUEST.md, then only the files Bob listed.
-> Write findings to handoff/REVIEW-FEEDBACK.md.
+When Bob writes `handoff/REVIEW-REQUEST.md`:
 
-To run Richard on a specific model, pass `model: "[model-id]"` in the Agent tool call, or switch to that model before pasting manually.
+**Interactive session**:
+```
+/codex:review --wait --scope working-tree "Full review of the working-tree changes. Surface ALL findings — critical, high, medium, AND low. Include style, naming, doc gaps, dead code, perf hints, security implications, test coverage gaps, edge cases. Do NOT filter. Past sprints lost issues because reviews were too narrow."
+```
+
+**Sub-agent / non-interactive context**:
+```bash
+node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" review --wait --scope working-tree "<same focus text>"
+```
+
+Paste the REVIEW-REQUEST.md summary + the criteria in `~/.claude/skills/three-man-team/docs/codex-integration.md` (spec compliance, drift, security, logic, standards, known gaps) into the prompt.
+
+Then translate Codex structured output into `handoff/REVIEW-FEEDBACK.md` — **every finding goes in**:
+- `critical | high` → `## Must Fix` (blocks step)
+- `medium | low` → `## Should Fix` (non-blocking, but logged)
+- product-decision finding → `## Escalate to Architect`
+- `verdict: approve` → `## Cleared` with one-sentence sign-off
+- Set `Ready for Builder: YES` only if verdict is `approve` and no Must Fix. Otherwise `NO`.
+
+Never auto-apply Codex fixes. Bob writes the code. Always.
+
+Gate: no deploy until `Ready for Builder: YES`. No fallback if Codex is down — block and fix the auth.
+
+If Bob needs to fix issues, spin Bob back up with the same Agent prompt; he reads `handoff/REVIEW-FEEDBACK.md` and resubmits. Then rerun the Codex review.
 
 ---
 
 ## The Deploy Gate
 
-When Richard signals "Step N is clear":
-1. Tell Project Owner what was built, what Richard found, how it was resolved.
+When `handoff/REVIEW-FEEDBACK.md` reads `Ready for Builder: YES`:
+1. Tell Project Owner what was built, what Codex found, how it was resolved.
 2. Get explicit go-ahead.
 3. Commit to version control with a clear message.
 4. Push to production.

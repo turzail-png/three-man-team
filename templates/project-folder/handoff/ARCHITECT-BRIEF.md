@@ -1,5 +1,5 @@
 # Architect Brief
-*Written by Architect. Read by Builder and Reviewer.*
+*Written by Architect. Read by Builder. Reviewed by `/codex:adversarial-review` before Builder starts (output → handoff/BRIEF-CRITIQUE.md).*
 *Overwrite this file each step — it is not a log, it is the current active brief.*
 
 ---

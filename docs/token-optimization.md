@@ -48,7 +48,7 @@ rule has the highest impact in active build sessions.
 Each role loads only what their job requires:
 - Architect: checkpoint + BUILD-LOG + ARCHITECT-BRIEF
 - Builder: ARCHITECT-BRIEF + relevant reference files only
-- Reviewer: REVIEW-REQUEST + specific files Builder listed
+- Codex review (run by Architect): operates on the working-tree diff — no Claude context cost
 
 The full project spec, schema, and flow docs stay on disk until explicitly needed.
 

@@ -1,5 +1,38 @@
 # Changelog
 
+## v2.0.0 — 2026-05-04 (codex-review-gates fork)
+
+**Breaking change**: Reviewer role replaced with Codex review gates. Personal fork; not
+upstream Russell.
+
+- The Claude `Reviewer` (Richard) persona is removed. `templates/project-folder/REVIEWER.md`
+  is deleted. There is no `/reviewer` slash command in this fork.
+- Architect now runs two Codex slash commands:
+  - `/codex:adversarial-review` against `handoff/ARCHITECT-BRIEF.md` before Builder starts.
+    Output translated into the new `handoff/BRIEF-CRITIQUE.md` with an
+    `## Architect Resolution` section that gates Builder spin-up.
+  - `/codex:review` against Builder's working-tree changes after Builder is done.
+    Output translated into the existing `handoff/REVIEW-FEEDBACK.md` (Must Fix /
+    Should Fix / Escalate / Cleared).
+- **Full-review prompts**: both gates explicitly request `critical + high + medium + low`
+  findings via a `<completeness_contract>` block. Past sprints lost real issues because
+  reviews were too narrow — Codex now surfaces everything, Architect filters at translation
+  time. REVIEW-FEEDBACK and BRIEF-CRITIQUE templates explicitly require all severity levels.
+- **Sub-agent fallback**: slash commands ship with `disable-model-invocation: true` and
+  silently no-op from spawned agents or hooks. Each gate documents a direct CLI alternative
+  via `codex-companion.mjs` that works in any non-interactive context.
+- New doc: `docs/codex-integration.md` — gate prompts, schema mapping, decision table for
+  slash command vs direct CLI, preserved review criteria (spec compliance, drift, security,
+  logic, standards, known gaps).
+- New handoff: `handoff/BRIEF-CRITIQUE.md` template.
+- Setup script + new-setup.md updated: only ask about Arch and Bob (no Richard); ask about
+  the codex plugin instead.
+- **No fallback** if Codex is down: sprint blocks at the review gate. The whole point of
+  the gate is the independent second opinion.
+- Prerequisite: install the codex Claude Code plugin and run `/codex:setup` once per session.
+
+This branch is a personal fork of `russelleNVy/three-man-team` v1.2.3; not pushed upstream.
+
 ## v1.2.3 — 2026-05-03
 
 - Auto-update check: Arch now checks the GitHub releases API at session start and notifies the Project Owner if a newer version is available

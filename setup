@@ -29,6 +29,14 @@ else
   echo "  Claude Code not found — install from https://claude.ai/code for slash command support"
 fi
 
+# Check for codex plugin
+if [ -d "$GLOBAL_CLAUDE/plugins/cache/openai-codex" ]; then
+  echo "✓ codex plugin detected"
+else
+  echo "  codex plugin not found — install it for the review gates (/codex:adversarial-review and /codex:review)"
+  echo "  Three Man Team requires it. Without codex, the sprint will block at the review gate."
+fi
+
 echo ""
 echo "Welcome to Three Man Team."
 echo ""
@@ -69,8 +77,10 @@ else
   echo ""
   echo "  cp -r $SCRIPT_DIR/templates/project-folder/. $PROJECT_ROOT/"
   echo ""
-  echo "  This adds ARCHITECT.md, BUILDER.md, REVIEWER.md, and the handoff/ folder"
-  echo "  to your project root. These are the files your agents read and write."
+  echo "  This adds ARCHITECT.md, BUILDER.md, new-setup.md, VERSION, and the handoff/ folder"
+  echo "  to your project root. These are the files Arch and Bob read and write."
+  echo "  Code review is run by Codex via /codex:adversarial-review and /codex:review —"
+  echo "  no third persona file. Run /codex:setup once per session before the first gate."
   echo ""
   echo "  Then navigate to your project root:"
   echo ""

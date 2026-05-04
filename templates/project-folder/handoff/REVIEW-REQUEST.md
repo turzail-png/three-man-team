@@ -1,5 +1,5 @@
 # Review Request — Step [N]
-*Written by Builder. Read by Reviewer.*
+*Written by Builder. Read by Architect (who runs `/codex:review`).*
 
 Ready for Review: YES / NO
 

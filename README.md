@@ -20,26 +20,33 @@ tokens on every session doing work that didn't need to happen.
 
 The solution isn't a better prompt. It's a process.
 
-Three Man Team gives you three agents with distinct jobs, clear handoffs, and rules that prevent the most expensive failure modes. The Architect plans and deploys. The Builder builds exactly what the brief says. The Reviewer doesn't pass work that isn't right.
+Three Man Team gives you two Claude agents with distinct jobs, a Codex review gate at every handoff, and rules that prevent the most expensive failure modes. The Architect plans and deploys. The Builder builds exactly what the brief says. Codex challenges the brief and reviews the build — independent second opinion, every step.
 
 ---
 
-## Why Three Agents
+## Why Two Claude Agents Plus Codex
 
 DeepMind's multi-agent research shows teams of 3-5 with structured artifact handoffs
 outperform both solo agents and larger groups. Three is not arbitrary — it is the
 minimum for meaningful review and the maximum before coordination overhead eats the gain.
 
+The original Three Man Team used a Claude Reviewer for the third role. This codex-integrated
+version swaps that role for **Codex** (`/codex:adversarial-review` on the brief, `/codex:review`
+on the build). The independent model is the point — a second Claude reviewing Claude's work
+shares too many blind spots.
+
 The roles map to how real software ships:
-- Someone who understands the whole system and owns the deploy
-- Someone who builds fast and clean
-- Someone who catches what the builder missed
+- Someone who understands the whole system and owns the deploy (Architect — Claude)
+- Someone who builds fast and clean (Builder — Claude)
+- An independent second opinion that catches what the builder missed (Codex)
 
 ---
 
 ## Quick Start
 
-**How the team runs:** Three Man Team uses one Claude Code session. Arch is your main agent. When work is ready to build, Arch spins up Bob as a subagent via Claude Code's Agent tool. When Bob is done, Arch spins up Richard the same way. You don't open three windows — everything runs inside your single session.
+**How the team runs:** Three Man Team uses one Claude Code session. Arch is your main agent. When work is ready to build, Arch spins up Bob as a subagent via Claude Code's Agent tool. Code review is run by **Codex** via `/codex:adversarial-review` (after the brief) and `/codex:review` (after the build). You don't open three windows — Claude roles run inside your single session, Codex runs as a separate plugin process Arch calls.
+
+**Prerequisite:** install the codex Claude Code plugin and run `/codex:setup` once per session before the first review gate.
 
 Choose your install type:
 
@@ -105,7 +112,9 @@ Arch will handle the rest — project context file, team names, and your first s
   <img src="assets/workflow.png" alt="Three Man Team Workflow" width="100%">
 </p>
 
-Every unit of work follows the same path. Architect plans and writes the brief. Builder reads it, shows a plan, builds, and hands off to Reviewer. Reviewer clears it or sends it back. Architect deploys with the Project Owner's go-ahead. Nothing skips a step.
+Every unit of work follows the same path. Architect plans and writes the brief. Codex runs `/codex:adversarial-review` against the brief — Architect resolves findings before Builder starts. Builder reads the brief, shows a plan, builds, and writes REVIEW-REQUEST.md. Architect runs `/codex:review` and translates the output into REVIEW-FEEDBACK.md. Architect deploys with the Project Owner's go-ahead. Nothing skips a step.
+
+See [docs/codex-integration.md](docs/codex-integration.md) for gate details.
 
 See a complete example from problem to deploy → [`examples/sprint-walkthrough.md`](examples/sprint-walkthrough.md)
 
@@ -114,12 +123,12 @@ See a complete example from problem to deploy → [`examples/sprint-walkthrough.
 ## The Team
 
 <p align="center">
-  <img src="assets/role-cards-cropped.png" alt="Arch, Bob and Richard" width="100%">
+  <img src="assets/role-cards-cropped.png" alt="Arch and Bob" width="100%">
 </p>
 
-Three agents. Three distinct jobs. Built to work together.
+Two Claude agents. One Codex review at every gate. Built to work together.
 
-Architect, Builder, Reviewer are the defaults. Rename them to anything — Arch will handle it during setup.
+Architect and Builder are the defaults. Rename them to anything — Arch will handle it during setup. Code review is run by Codex (`/codex:adversarial-review` and `/codex:review`); not a renamable persona.
 
 ---
 
@@ -154,8 +163,7 @@ Arch checks the GitHub releases API at the start of every session. If a newer ve
 
 ## Templates
 
-- `templates/project-folder/` — **Start here.** Named personas (Arch, Bob, Richard), fully written and ready to use. Customize the Who You Are sections and rename to fit your team.
-- `templates/generic/` — Blank slate with `[CUSTOMIZE]` placeholders. Use this if you want to build your own personas from scratch or install globally across all projects.
+- `templates/project-folder/` — **Start here.** Named personas (Arch, Bob), fully written and ready to use. Customize the Who You Are sections and rename to fit your team. Code review is run by Codex, not a third persona.
 
 Arch handles renaming during setup — just tell it the new names.
 

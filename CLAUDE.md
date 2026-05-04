@@ -18,11 +18,31 @@ Do not re-read files already in context this session.
 ## Session Start — Every Role
 
 1. Load your token-optimizer skill if you have one — first, before anything else.
-2. Check `SESSION-CHECKPOINT.md` — if active and recent, read it. That is your state.
-3. Load your role file — copied to project root → `ARCHITECT.md` · `BUILDER.md` · `REVIEWER.md`
-4. If no checkpoint — Architect reads `BUILD-LOG.md` + `ARCHITECT-BRIEF.md` only.
+2. Check `handoff/SESSION-CHECKPOINT.md` — if active and recent, read it. That is your state.
+3. Load your role file — copied to project root → `ARCHITECT.md` · `BUILDER.md`
+4. If no checkpoint — Architect reads `handoff/BUILD-LOG.md` + `handoff/ARCHITECT-BRIEF.md` only.
 
 **Project Owner role is set by the human. Do not ask.**
+
+Code review is not a Claude role anymore — it is Codex. See `## Codex Review Gates` below.
+
+---
+
+## Codex Review Gates
+
+Two mandatory gates are run by Architect via Codex slash commands. No Claude-side reviewer,
+no fallback. If Codex is down, the sprint blocks until `/codex:setup` is fixed.
+
+| Gate | When | Command (interactive) | Output |
+|---|---|---|---|
+| Adversarial (plan) | After `handoff/ARCHITECT-BRIEF.md` is written, before Builder starts | `/codex:adversarial-review --wait --scope working-tree "<focus>"` | `handoff/BRIEF-CRITIQUE.md` |
+| Review (code) | After Builder writes `handoff/REVIEW-REQUEST.md` | `/codex:review --wait --scope working-tree "<focus>"` | `handoff/REVIEW-FEEDBACK.md` |
+
+Sub-agent / non-interactive contexts (slash commands no-op there): use the direct CLI form
+`node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" {adversarial-review,review} ...`.
+
+Prerequisite each session: `/codex:setup` reports `ready: true` and `loggedIn: true`.
+Prompt composition + review criteria + slash-vs-CLI decision table: see `docs/codex-integration.md`.
 
 ---
 
@@ -31,10 +51,11 @@ Do not re-read files already in context this session.
 | File | Load when |
 |---|---|
 | Project spec | Architect needs it; checkpoint doesn't cover it |
-| ARCHITECT-BRIEF.md | Builder and Reviewer load at task start |
-| BUILD-LOG.md | Architect checks status; Builder updates when done |
-| REVIEW-REQUEST.md | Reviewer loads at review start |
-| REVIEW-FEEDBACK.md | Builder loads after Reviewer signals done |
+| handoff/ARCHITECT-BRIEF.md | Builder loads at task start |
+| handoff/BRIEF-CRITIQUE.md | Architect writes after adversarial review; Builder may skim for context |
+| handoff/BUILD-LOG.md | Architect checks status; Builder updates when done |
+| handoff/REVIEW-REQUEST.md | Architect loads before running `/codex:review` |
+| handoff/REVIEW-FEEDBACK.md | Builder loads when returned for fixes |
 
 ---
 
@@ -42,8 +63,9 @@ Do not re-read files already in context this session.
 
 All team communication flows through files in `handoff/`:
 - `ARCHITECT-BRIEF.md` — Architect writes, Builder reads
-- `REVIEW-REQUEST.md` — Builder writes, Reviewer reads
-- `REVIEW-FEEDBACK.md` — Reviewer writes, Builder reads
+- `BRIEF-CRITIQUE.md` — Codex adversarial output, Architect resolves
+- `REVIEW-REQUEST.md` — Builder writes, Architect reads before Codex review
+- `REVIEW-FEEDBACK.md` — Architect writes (from Codex review output), Builder reads
 - `BUILD-LOG.md` — shared record, Architect owns
 - `SESSION-CHECKPOINT.md` — Architect writes at session end
 
