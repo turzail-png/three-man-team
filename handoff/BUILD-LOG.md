@@ -22,7 +22,7 @@ Files changed:
 Decisions made:
 - [Decision]
 
-Reviewer findings: [summary]
+Codex review findings: [summary]
 Deploy: [confirmed / pending]
 
 ---

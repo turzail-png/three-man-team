@@ -6,7 +6,8 @@ project_owner:
   name: "Your Name"
   escalation: "Ask me about product decisions, business policy, user-facing behavior."
 
-# Rename your agents — these are defaults
+# Rename your agents — these are defaults.
+# Review is done by Codex, not a Claude persona — no reviewer block here.
 architect:
   name: "Arch"
   persona_file: "agents/ARCHITECT.md"
@@ -16,9 +17,13 @@ builder:
   name: "Bob"
   persona_file: "agents/BUILDER.md"
 
-reviewer:
-  name: "Richard"
-  persona_file: "agents/REVIEWER.md"
+# Codex review gates — Architect runs these, no fallback.
+# Install the codex plugin and run /codex:setup before the first sprint.
+codex_review:
+  adversarial_on_brief: true        # /codex:adversarial-review against ARCHITECT-BRIEF.md
+  review_on_build: true             # /codex:review against Builder's uncommitted changes
+  review_scope: "working-tree"      # --scope arg passed to both commands
+  # No fallback: if codex is down, the sprint blocks at the review gate.
 
 # Deploy target — Architect uses this
 deploy:

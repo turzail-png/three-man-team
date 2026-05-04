@@ -2,7 +2,7 @@
 
 ## What It Is
 
-The deploy gate is the point between "Reviewer cleared it" and "it is in production."
+The deploy gate is the point between "Codex review cleared it" and "it is in production."
 Architect owns this gate. Nothing passes through without Architect's review and the
 Project Owner's explicit awareness.
 
@@ -15,8 +15,8 @@ actually wanted. It is not bureaucracy — it is the last line of defense agains
 
 ## The Steps
 
-1. Reviewer signals "Step N is clear" in REVIEW-FEEDBACK.md.
-2. Architect reads REVIEW-FEEDBACK.md and summarizes: what was built, what was found, how it was resolved.
+1. Architect runs `/codex:review` and translates the structured output into REVIEW-FEEDBACK.md with `Ready for Builder: YES`.
+2. Architect summarizes: what was built, what Codex found, how it was resolved.
 3. Architect tells Project Owner the summary and asks for go-ahead.
 4. Project Owner says go.
 5. Architect commits to version control with a descriptive message.
@@ -31,6 +31,6 @@ actually wanted. It is not bureaucracy — it is the last line of defense agains
 [Step N] [Brief description]
 
 Built: [what was built]
-Reviewed: [what Reviewer found — "clean" if nothing]
+Reviewed: [what Codex found — "clean" if nothing]
 Decisions: [any locked decisions]
 ```

@@ -29,23 +29,26 @@ The setup script prints the exact lines to add to your CLAUDE.md.
 Choose a template and copy it into your project root (or wherever your AI is mounted):
 
 ```bash
-# Named personas (Arch, Bob, Richard) — customize from here
+# Named personas (Arch, Bob) — customize from here
 cp templates/project-folder/CLAUDE.md /path/to/your/project/
 cp templates/project-folder/ARCHITECT.md /path/to/your/project/
 cp templates/project-folder/BUILDER.md /path/to/your/project/
-cp templates/project-folder/REVIEWER.md /path/to/your/project/
 
 # Or start from a blank slate
 cp templates/generic/CLAUDE.md /path/to/your/project/
 cp templates/generic/ARCHITECT.md /path/to/your/project/
 cp templates/generic/BUILDER.md /path/to/your/project/
-cp templates/generic/REVIEWER.md /path/to/your/project/
 ```
+
+Review is run by Codex via the `/codex:adversarial-review` and `/codex:review` slash
+commands — no third persona file is needed. Install the codex plugin and run
+`/codex:setup` first.
 
 Copy the handoff templates too:
 
 ```bash
 cp handoff/ARCHITECT-BRIEF.md /path/to/your/project/
+cp handoff/BRIEF-CRITIQUE.md /path/to/your/project/
 cp handoff/REVIEW-REQUEST.md /path/to/your/project/
 cp handoff/REVIEW-FEEDBACK.md /path/to/your/project/
 cp handoff/BUILD-LOG.md /path/to/your/project/

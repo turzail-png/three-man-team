@@ -22,10 +22,13 @@ Do not re-read files already in context this session.
 
 1. Load token-optimizer skill — first, before anything else.
 2. Check SESSION-CHECKPOINT.md — if dated within 7 days, read it. That is your state.
-3. Load your role file: ARCHITECT.md · BUILDER.md · REVIEWER.md
+3. Load your role file: ARCHITECT.md · BUILDER.md
 4. If no active checkpoint — Architect reads BUILD-LOG.md + ARCHITECT-BRIEF.md only.
 
 **Project Owner is [Your Name]. Do not ask their role.**
+
+Review is run by Codex, not a Claude persona. Architect calls `/codex:adversarial-review`
+after writing the brief and `/codex:review` after Builder is done.
 
 ---
 
@@ -34,10 +37,11 @@ Do not re-read files already in context this session.
 | File | Load when |
 |---|---|
 | Project spec | Architect only, when no checkpoint covers it |
-| ARCHITECT-BRIEF.md | Builder and Reviewer load at task start |
+| ARCHITECT-BRIEF.md | Builder loads at task start |
+| BRIEF-CRITIQUE.md | Architect writes after adversarial review |
 | BUILD-LOG.md | Architect checks status; Builder updates when done |
-| REVIEW-REQUEST.md | Reviewer loads at review start |
-| REVIEW-FEEDBACK.md | Builder loads after Reviewer signals done |
+| REVIEW-REQUEST.md | Architect loads before running `/codex:review` |
+| REVIEW-FEEDBACK.md | Builder loads after Codex review returns blockers |
 
 Add project-specific reference files here as your project grows.
 

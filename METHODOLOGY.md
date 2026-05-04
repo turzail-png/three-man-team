@@ -4,16 +4,20 @@ Why this works, and the research behind it.
 
 ---
 
-## Personas Over Labels
+## Personas Over Labels (for Claude roles)
 
-Telling an AI "you are a reviewer" produces generic reviewing behavior. Giving the AI
-a character — a backstory, a set of values, a voice, a specific reason they care about
-the work — activates a richer cluster of behavior.
+Telling an AI "you are a builder" produces generic building behavior. Giving the AI a
+character — a backstory, a set of values, a voice, a specific reason they care about the
+work — activates a richer cluster of behavior.
 
 This is vocabulary routing: precise role framing activates relevant training patterns
-more effectively than abstract job titles. The Reviewer in Three Man Team is not "a code reviewer." They are someone who has seen what happens when corners get cut and will not let it happen again. That framing produces different — better — behavior.
+more effectively than abstract job titles. Architect and Builder in Three Man Team are
+not generic agents. They have histories, opinions, and standards. The specificity is the
+point.
 
-The personas in Three Man Team are defaults. Name them, age them, give them a history that fits your team and your domain. The specificity is the point.
+Review is the exception. It is run by Codex, not a Claude persona — the value of a review
+gate is the **independent model**, not a richer reviewing persona. A second Claude
+reviewing Claude's work shares too many blind spots to be a real check.
 
 ---
 
@@ -31,14 +35,15 @@ Three Man Team is exactly three agents by design. Resist adding a fourth.
 
 ## Handoffs Through Files, Not Conversation
 
-In Three Man Team, the agents communicate through structured files:
-- Architect writes to ARCHITECT-BRIEF.md
-- Builder writes to REVIEW-REQUEST.md
-- Reviewer writes to REVIEW-FEEDBACK.md
+The agents and gates communicate through structured files:
+- Architect writes ARCHITECT-BRIEF.md
+- Codex (via `/codex:adversarial-review`) → Architect writes BRIEF-CRITIQUE.md
+- Builder writes REVIEW-REQUEST.md
+- Codex (via `/codex:review`) → Architect writes REVIEW-FEEDBACK.md
 
-This is not just organization. It means each agent starts with a clean context window
-reading only what they need for their specific job. Builder never loads the full spec.
-Reviewer never loads the schema. Token waste is structural, not behavioral — fix the
+This is not just organization. It means each agent and gate starts with a clean context
+window reading only what they need for their specific job. Builder never loads the full
+spec. Codex never loads the schema. Token waste is structural, not behavioral — fix the
 structure and the behavior follows.
 
 ---
@@ -47,8 +52,8 @@ structure and the behavior follows.
 
 Nothing ships without Architect's sign-off and the Project Owner's awareness. This is
 not bureaucracy — it is accountability. The Project Owner knows what is going live.
-The Architect has confirmed it passed review. The Builder and Reviewer never touch
-the deploy target directly.
+The Architect has confirmed it passed Codex review. The Builder never touches the deploy
+target directly. Codex never touches it either — it produces findings, nothing more.
 
 This pattern eliminates the most expensive class of AI mistake: changes that were
 technically correct but wrong for the project, shipping without anyone noticing.

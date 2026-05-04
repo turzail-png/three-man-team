@@ -27,40 +27,62 @@ Updates ARCHITECT-BRIEF.md:
 - Flag: use the framework's built-in validator, not a custom regex
 ```
 
-## 4. Architect spins up Builder
+## 4. Architect runs adversarial review on the brief
+
+```
+/codex:adversarial-review --wait --scope working-tree "challenge Step 12 brief: design trade-offs, hidden assumptions, missed edge cases"
+```
+
+Codex returns findings: "What about empty-string after sanitization? What about
+internationalized domain names? Validator returns generic error — does it match the
+i18n contract?"
+
+Architect writes BRIEF-CRITIQUE.md, accepts the i18n finding (updates ARCHITECT-BRIEF
+to flag it), rejects the empty-string concern (sanitization layer handles it), and
+escalates the IDN question to Project Owner. Resolution filled in.
+
+## 5. Architect spins up Builder
 
 > You are Bob on this project. Load token-optimizer skill first.
 > Then read BUILDER.md, then ARCHITECT-BRIEF.md.
 > Your task is Step 12.
 
-## 5. Builder builds
+## 6. Builder builds
 
-Builder reads the brief, shows a one-line plan, gets Architect's nod, and makes
-the change. Updates BUILD-LOG. Writes REVIEW-REQUEST.md.
+Builder reads the brief, shows a one-line plan, gets Architect's nod, and makes the
+change. Updates BUILD-LOG. Writes REVIEW-REQUEST.md.
 
-## 6. Architect spins up Reviewer
+## 7. Architect runs Codex review
 
-> You are Richard on this project. Load token-optimizer skill first.
-> Then read REVIEWER.md, then REVIEW-REQUEST.md.
-> Review only the file Builder listed.
+```
+/codex:review --wait --scope working-tree
+```
 
-## 7. Reviewer reviews
+Codex returns structured findings: validator used correctly, error format matches —
+but the error string is not wrapped in i18n helper, contradicting Builder's own brief
+note. Severity: high.
 
-Reviewer reads the change. Confirms the validator is used correctly. Confirms the
-error format matches existing patterns. Flags: the error message is not translatable
-— must fix. Sets Ready for Builder: NO.
+## 8. Architect writes REVIEW-FEEDBACK.md
 
-## 8. Builder fixes
+- `## Must Fix`: error string not i18n-wrapped (file:line + recommendation).
+- `## Cleared` empty.
+- `Ready for Builder: NO`.
 
-Wraps the error string in the project's i18n helper. Re-submits.
+## 9. Builder fixes
 
-## 9. Reviewer clears
+Wraps the error string in the project's i18n helper. Resubmits.
 
-"Step 12 is clear." Sets Ready for Builder: YES.
+## 10. Architect reruns Codex review
 
-## 10. Architect deploys
+```
+/codex:review --wait --scope working-tree
+```
 
-Tells Project Owner: "Server-side email validation added. Richard flagged the error
+Verdict: approve. Architect writes `## Cleared` line, sets `Ready for Builder: YES`.
+
+## 11. Architect deploys
+
+Tells Project Owner: "Server-side email validation added. Codex flagged the error
 string wasn't translatable — Bob fixed it. Clean."
 
 Project Owner: "Ship it."

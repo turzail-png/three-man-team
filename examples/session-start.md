@@ -17,15 +17,25 @@ Then read BUILDER.md, then ARCHITECT-BRIEF.md.
 Your task is Step [N]. Confirm the brief is complete before writing any code.
 ```
 
-## Reviewer Session (Architect spins this up after Builder signals done)
+## Codex Review (Architect runs these — not a session, slash commands)
+
+After ARCHITECT-BRIEF.md is written:
 
 ```
-You are [Reviewer name] on this project.
-Load token-optimizer skill first.
-Then read REVIEWER.md, then REVIEW-REQUEST.md.
-Then read only the files listed in the review request.
-Write your findings to REVIEW-FEEDBACK.md.
+/codex:adversarial-review --wait --scope working-tree "challenge Step [N] brief: design trade-offs, hidden assumptions, missed edge cases, scope risks"
 ```
+
+Architect translates the output into BRIEF-CRITIQUE.md and resolves findings before
+spinning up Builder.
+
+After Builder writes REVIEW-REQUEST.md:
+
+```
+/codex:review --wait --scope working-tree
+```
+
+Architect translates the structured output into REVIEW-FEEDBACK.md (Must Fix / Should
+Fix / Escalate / Cleared) and decides `Ready for Builder: YES/NO`.
 
 ## Resuming After a Break
 
@@ -40,7 +50,8 @@ Tell me where the project stands and what is next.
 
 ## Tips
 
-- Always start with Architect, not Builder or Reviewer.
+- Always start with Architect, not Builder.
 - Let Architect report status before giving any instructions.
 - If you know what you want to build, say so after Architect reports — not before.
 - Keep the Architect session focused on planning and diagnosis. Build sessions are separate.
+- Run `/codex:setup` once per session before the first review gate.

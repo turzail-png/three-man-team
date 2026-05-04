@@ -34,7 +34,9 @@ if [ -f "$GLOBAL_CLAUDE_MD" ] && grep -q "three-man-team" "$GLOBAL_CLAUDE_MD" 2>
   echo "  (Already configured in $GLOBAL_CLAUDE_MD)"
 else
   echo "  ## Three Man Team"
-  echo "  Available agents: /architect, /builder, /reviewer"
+  echo "  Available agents: /architect, /builder"
+  echo "  Review: run by Codex via /codex:adversarial-review and /codex:review"
+  echo "  Prerequisite: install the codex plugin and run /codex:setup once per session"
   echo "  Token rules always active — see ~/.claude/skills/three-man-team/CLAUDE.md"
   echo ""
   echo "  Add to: $GLOBAL_CLAUDE_MD (global) or your project's CLAUDE.md (per-project)"

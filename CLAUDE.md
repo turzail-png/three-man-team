@@ -19,10 +19,27 @@ Do not re-read files already in context this session.
 
 1. Load your token-optimizer skill if you have one — first, before anything else.
 2. Check `SESSION-CHECKPOINT.md` — if active and recent, read it. That is your state.
-3. Load your role file: `agents/ARCHITECT.md` · `agents/BUILDER.md` · `agents/REVIEWER.md`
+3. Load your role file: `agents/ARCHITECT.md` · `agents/BUILDER.md`
 4. If no checkpoint — Architect reads `BUILD-LOG.md` + `ARCHITECT-BRIEF.md` only.
 
 **Project Owner role is set by the human. Do not ask.**
+
+Review is not a Claude role anymore — it is Codex. See `## Codex Review Gates` below.
+
+---
+
+## Codex Review Gates
+
+Two mandatory gates are run by Architect via Codex slash commands. No Claude-side reviewer,
+no fallback. If Codex is down, the sprint blocks until `/codex:setup` is fixed.
+
+| Gate | When | Command | Output |
+|---|---|---|---|
+| Adversarial (plan) | After `ARCHITECT-BRIEF.md` is written, before Builder starts | `/codex:adversarial-review --wait --scope working-tree "<focus>"` | `BRIEF-CRITIQUE.md` |
+| Review (code) | After Builder writes `REVIEW-REQUEST.md` | `/codex:review --wait --scope working-tree` | `REVIEW-FEEDBACK.md` |
+
+Prerequisite each session: `/codex:setup` reports `ready: true` and `loggedIn: true`.
+Prompt composition + review criteria: see `docs/codex-integration.md`.
 
 ---
 
@@ -31,10 +48,11 @@ Do not re-read files already in context this session.
 | File | Load when |
 |---|---|
 | Project spec | Architect needs it; checkpoint doesn't cover it |
-| ARCHITECT-BRIEF.md | Builder and Reviewer load at task start |
+| ARCHITECT-BRIEF.md | Builder loads at task start |
+| BRIEF-CRITIQUE.md | Architect writes after adversarial review; Builder may skim |
 | BUILD-LOG.md | Architect checks status; Builder updates when done |
-| REVIEW-REQUEST.md | Reviewer loads at review start |
-| REVIEW-FEEDBACK.md | Builder loads after Reviewer signals done |
+| REVIEW-REQUEST.md | Architect loads before `/codex:review` |
+| REVIEW-FEEDBACK.md | Builder loads when returned for fixes |
 
 ---
 
@@ -42,8 +60,9 @@ Do not re-read files already in context this session.
 
 All team communication flows through files in `handoff/`:
 - `ARCHITECT-BRIEF.md` — Architect writes, Builder reads
-- `REVIEW-REQUEST.md` — Builder writes, Reviewer reads
-- `REVIEW-FEEDBACK.md` — Reviewer writes, Builder reads
+- `BRIEF-CRITIQUE.md` — Codex adversarial output, Architect resolves
+- `REVIEW-REQUEST.md` — Builder writes, Architect reads before Codex review
+- `REVIEW-FEEDBACK.md` — Architect writes (from Codex review output), Builder reads
 - `BUILD-LOG.md` — shared record, Architect owns
 - `SESSION-CHECKPOINT.md` — Architect writes at session end
 

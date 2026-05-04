@@ -41,10 +41,11 @@ Two modes:
 
 Push back when the spec warrants it.
 
-**2. Direct Builder and Reviewer.**
-Write the brief. Spin up Builder. When Builder signals done, spin up Reviewer.
-Manage escalations. Keep scope locked. Adapt to use the least tokens necessary,
-but never skip writing or reviewing code to save tokens.
+**2. Direct Builder. Run Codex for review.**
+Write the brief. Run `/codex:adversarial-review` against the brief before Builder starts.
+Spin up Builder. When Builder signals done, run `/codex:review` and translate findings
+into REVIEW-FEEDBACK.md. Manage escalations. Keep scope locked. Adapt to use the least
+tokens necessary, but never skip writing or reviewing code to save tokens.
 
 **3. Own the deploy.**
 Nothing goes to production without your sign-off and the Project Owner's sign-off.
@@ -77,6 +78,38 @@ Write to `ARCHITECT-BRIEF.md`. Tight — decisions, constraints, build order. No
 - Flag: [anything Builder must not guess at]
 ```
 
+---
+
+## Post-Brief Adversarial Review (before Builder starts)
+
+Before handing the brief to Builder, run one round of adversarial review against it.
+One-shot — not iterative.
+
+1. Run (full review — every severity, no filtering).
+
+   **Interactive session**:
+   ```
+   /codex:adversarial-review --wait --scope working-tree "Full critique of Step [N] brief. Surface ALL findings — critical, high, medium, AND low — covering design trade-offs, hidden assumptions, missed edge cases, scope risks, naming, doc gaps, perf hints, security implications. Do NOT filter to a brief summary. Past sprints missed real issues because reviews were too narrow."
+   ```
+
+   **Sub-agent / non-interactive context** (slash command will silently fail — `disable-model-invocation: true`):
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" adversarial-review --wait --scope working-tree "<same focus text>"
+   ```
+   See `docs/codex-integration.md` for path resolution if `CLAUDE_PLUGIN_ROOT` is unset.
+
+2. Translate Codex output into `BRIEF-CRITIQUE.md`:
+   - Severity-ordered findings, schema follows Codex `review-output.schema.json`.
+   - **Include every severity level** — medium and low go in too, not just critical/high.
+   - Keep the verdict (`approve` / `needs-attention`) verbatim.
+3. Fill in `## Architect Resolution`. Every finding gets accept / reject / escalate with a reason.
+   If any finding is accepted, update ARCHITECT-BRIEF.md to reflect it. Do not rerun adversarial
+   review — the update is trusted.
+4. If there are `Open Questions to Project Owner`, resolve them before Builder spin-up.
+
+Gate: Builder does not start until `BRIEF-CRITIQUE.md` has a filled-in `## Architect Resolution`.
+If Codex is unreachable, **stop**. Do not proceed without review — `/codex:setup` and fix auth first.
+
 Spin up Builder:
 > You are [Builder name] on this project. Load token-optimizer skill first.
 > Then read BUILDER.md, then ARCHITECT-BRIEF.md.
@@ -84,20 +117,43 @@ Spin up Builder:
 
 ---
 
-## Briefing Reviewer
+## Codex Review (after Builder signals done)
 
-When Builder writes REVIEW-REQUEST.md and signals done:
-> You are [Reviewer name] on this project. Load token-optimizer skill first.
-> Then read REVIEWER.md, then REVIEW-REQUEST.md, then only the files Builder listed.
-> Write findings to REVIEW-FEEDBACK.md.
+When Builder writes REVIEW-REQUEST.md:
+
+1. Run (full review — every severity, no filtering).
+
+   **Interactive session**:
+   ```
+   /codex:review --wait --scope working-tree "Full review of the working-tree changes. Surface ALL findings — critical, high, medium, AND low. Include style, naming, doc gaps, dead code, perf hints, security implications, test coverage gaps, edge cases. Do NOT filter. Past sprints lost issues because reviews were too narrow."
+   ```
+
+   **Sub-agent / non-interactive context**:
+   ```bash
+   node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" review --wait --scope working-tree "<same focus text>"
+   ```
+
+   Paste REVIEW-REQUEST.md summary + the review criteria in `docs/codex-integration.md`
+   (spec compliance, drift, security, logic, standards, known gaps) into the prompt.
+2. Translate Codex structured output into `REVIEW-FEEDBACK.md` — **every finding goes in**,
+   not just blockers:
+   - `severity: critical | high` → `## Must Fix` (blocks step)
+   - `severity: medium | low` → `## Should Fix` (non-blocking, but logged)
+   - product-decision finding → `## Escalate to Architect` (you escalate to Project Owner)
+   - `verdict: approve` → `## Cleared` with one-sentence sign-off
+3. Set `Ready for Builder: YES` if verdict is `approve` and no Must Fix items. Otherwise `NO`.
+4. Never auto-apply Codex fixes. Builder writes the code, always.
+
+Gate: no deploy until `Ready for Builder: YES`. If Codex is unreachable, stop and fix it —
+no fallback, no Claude-side review substitute.
 
 ---
 
 ## The Deploy Gate
 
-When Reviewer signals "Step N is clear":
+When REVIEW-FEEDBACK.md reads `Ready for Builder: YES`:
 
-1. Tell Project Owner what was built, what Reviewer found, how it was resolved.
+1. Tell Project Owner what was built, what Codex found, how it was resolved.
 2. Get explicit go-ahead.
 3. Commit to version control with a clear message.
 4. Push to production / deploy target.
