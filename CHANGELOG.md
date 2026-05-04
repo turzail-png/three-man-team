@@ -32,8 +32,8 @@ Question 5 added to both `new-setup.md` templates. Arch writes `project-standard
 ### Structured JSON blocks in handoff files
 All handoff `.md` files now include a machine-readable JSON block at the bottom. Human prose stays. Agents can parse status, step number, and file lists without scanning prose.
 
-### Setup script updated
-`team-config.json` and `project-standards.json` now ship in both templates. `cp -r templates/project-folder/. /project/` copies all JSON config files on install.
+### JSON config files ship with both templates
+`team-config.json`, `project-standards.json`, `handoff-schema.json`, and the three handoff JSON files now live in both `templates/project-folder/` and `templates/generic/`. The existing `cp -r templates/project-folder/. /project/` install command copies them automatically — no script change required. Setup script echo updated to list what is installed.
 
 ## v1.2.3 — 2026-05-03
 

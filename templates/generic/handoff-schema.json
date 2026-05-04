@@ -1,0 +1,70 @@
+{
+  "version": "1.3.0",
+  "handoffFiles": {
+    "ARCHITECT-BRIEF.md": {
+      "owner": "Architect",
+      "readBy": ["Builder"],
+      "requiredFields": ["step", "decisions", "buildOrder", "flags", "definitionOfDone"],
+      "jsonBlock": {
+        "step": "number",
+        "status": "enum:pending|in-progress|complete",
+        "flags": "array"
+      }
+    },
+    "build-recipe.json": {
+      "owner": "Builder",
+      "readBy": ["Architect", "Reviewer"],
+      "requiredFields": ["step", "description", "operations", "standards_checked", "out_of_scope"],
+      "operationTypes": ["create", "edit", "delete", "move", "run"]
+    },
+    "REVIEW-REQUEST.md": {
+      "owner": "Builder",
+      "readBy": ["Reviewer"],
+      "requiredFields": ["step", "filesChanged", "selfReview", "openQuestions"],
+      "jsonBlock": {
+        "step": "number",
+        "status": "enum:ready-for-review",
+        "filesChanged": "array"
+      }
+    },
+    "REVIEW-FEEDBACK.md": {
+      "owner": "Reviewer",
+      "readBy": ["Architect", "Builder"],
+      "requiredFields": ["step", "status"],
+      "statusValues": ["APPROVED", "APPROVED WITH CONDITIONS", "REJECTED"],
+      "jsonBlock": {
+        "step": "number",
+        "status": "enum:APPROVED|APPROVED_WITH_CONDITIONS|REJECTED",
+        "conditionCount": "number"
+      }
+    },
+    "BUILD-LOG.md": {
+      "owner": "Architect",
+      "readBy": ["Architect", "Builder"],
+      "jsonBlock": {
+        "currentStep": "number",
+        "lastDeploy": "string",
+        "openGaps": "number"
+      }
+    },
+    "SESSION-CHECKPOINT.md": {
+      "owner": "Architect",
+      "readBy": ["Architect"],
+      "jsonBlock": {
+        "step": "number",
+        "status": "string",
+        "resumePrompt": "string"
+      }
+    },
+    "sprint-plan.json": {
+      "owner": "Architect",
+      "readBy": ["Architect", "Builder", "Reviewer"],
+      "requiredFields": ["sprint", "goal", "steps", "current_step"]
+    },
+    "known-gaps.json": {
+      "owner": "Architect",
+      "readBy": ["Architect"],
+      "gapStatusValues": ["open", "in-progress", "addressed"]
+    }
+  }
+}
