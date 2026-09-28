@@ -38,6 +38,40 @@ no fallback. If Codex is down, the sprint blocks until `/codex:setup` is fixed.
 | Adversarial (plan) | After `handoff/ARCHITECT-BRIEF.md` is written, before Builder starts | `/codex:adversarial-review --wait --scope working-tree "<focus>"` | `handoff/BRIEF-CRITIQUE.md` |
 | Review (code) | After Builder writes `handoff/REVIEW-REQUEST.md` | `/codex:review --wait --scope working-tree "<focus>"` | `handoff/REVIEW-FEEDBACK.md` |
 
+## CI/CD Discipline: Always Required
+
+Every brief, build, and review MUST address CI/CD impact. This is non-negotiable as of 2026-05-08.
+
+**The full local CI gate runs ONCE, AFTER Codex review, not twice (2026-06-16).**
+Running the heavy gate (`test:coverage + vibecop + lint + build`) before the review AND
+again after wasted a full local CI cycle every sprint: if Codex returns Must Fix, the
+pre-review run was on now-stale code; if Codex is clean, the code is unchanged so one run
+after review suffices. Either way the FINAL code is validated exactly once. (This is local
+time/tokens, not GitHub Actions minutes; pr-gate.yml is the separate Actions gate.)
+
+**Architect**: every `ARCHITECT-BRIEF.md` includes a `## CI/CD Impact` section listing new files,
+required tests, expected coverage delta, vibecop expectations, and any `pr-gate.yml` edits.
+
+**Builder, BEFORE signaling done (fast pre-review check only)**: run `typecheck` + `build`
+(plus any test that directly exercises a just-written helper). This is the cheap "does it even
+compile / is the RSC/bundle valid" gate so Codex never reviews broken code. Do NOT run the
+full `test:coverage` or `vibecop` here. Every new pure helper under `src/lib/**` or
+`src/app/api/**/route.ts` still ships with at least one test in the same PR, never as a
+follow-up. REVIEW-REQUEST.md records the fast-gate result (`typecheck + build PASS`) and notes
+that full coverage/vibecop numbers are produced post-review.
+
+**Builder, AFTER Codex review (Must Fix applied), before the Deploy Gate**: run the FULL local
+CI gate once on the final code: `lint + typecheck + test:coverage + build + vibecop scan`.
+Record concrete numbers (coverage %, vibecop errors/warnings/info delta) in BUILD-LOG.md.
+The Deploy Gate does not proceed until this full gate is green.
+
+**Deploy Gate blocks (Must Fix) if any of these are missing after the post-review full run:**
+- Tests for new helpers
+- Coverage % concrete numbers in BUILD-LOG.md
+- Vibecop scan delta (errors/warnings/info)
+- 0 vibecop errors after the change
+- Coverage didn't drop > 1pp without compensating tests
+
 Sub-agent / non-interactive contexts (slash commands no-op there): use the direct CLI form
 `node "${CLAUDE_PLUGIN_ROOT}/scripts/codex-companion.mjs" {adversarial-review,review} ...`.
 
